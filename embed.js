@@ -54,20 +54,39 @@ jQuery(document).ready(function ($) {
       '*'
     );
 
-    // when webcam is opened
+    // when webcam is opened to detect the orientation
     if (localStorage.getItem('webcam') === 'true') {
-      window.addEventListener('deviceorientation', function (event) {
-        receiver.postMessage(
-          {
-            message: 'orientation',
-            orientation: {
-              alpha: event.alpha,
-              beta: event.beta,
-              gamma: event.gamma,
+      window.addEventListener('deviceorientation', function () {
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+          DeviceOrientationEvent.requestPermission()
+            .then((response) => {
+              if (response === 'granted') {
+                window.addEventListener('deviceorientation', handleOrientation);
+              }
+            })
+            .catch(
+              (error) =>
+                console.log(
+                  'DeviceOrientationEvent.requestPermission error:',
+                  error
+                ) /* eslint-disable-line no-console */
+            );
+        } else {
+          window.addEventListener('deviceorientation', handleOrientation);
+        }
+        const handleOrientation = (event) => {
+          receiver.postMessage(
+            {
+              message: 'orientation',
+              orientation: {
+                alpha: event.alpha,
+                beta: event.beta,
+                gamma: event.gamma,
+              },
             },
-          },
-          '*'
-        );
+            '*'
+          );
+        };
       });
     }
 
