@@ -53,6 +53,24 @@ jQuery(document).ready(function ($) {
       },
       '*'
     );
+
+    // when webcam is opened
+    if (localStorage.getItem('webcam') === 'true') {
+      window.addEventListener('deviceorientation', function (event) {
+        receiver.postMessage(
+          {
+            message: 'orientation',
+            orientation: {
+              alpha: event.alpha,
+              beta: event.beta,
+              gamma: event.gamma,
+            },
+          },
+          '*'
+        );
+      });
+    }
+
     // checking lang
     if (localStorage.getItem('lang')) {
       receiver.postMessage(
@@ -184,6 +202,10 @@ jQuery(document).ready(function ($) {
         localStorage.setItem('authToken', event.data.authFromParent);
       } else if (event.data && event.data.message === 'changeLang') {
         localStorage.setItem('lang', event.data.flag);
+      } else if (event.data && event.data.message === 'openWebcam') {
+        localStorage.setItem('webcam', 'true');
+      } else if (event.data && event.data.message === 'closeWebcam') {
+        localStorage.setItem('webcam', 'false');
       }
       // else if (event.data && event.data.message === 'ipTokenExists') {
       //   if (localStorage.getItem('authToken')) {
