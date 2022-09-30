@@ -55,39 +55,44 @@ jQuery(document).ready(function ($) {
     );
 
     // when webcam is opened to detect the orientation
-    if (localStorage.getItem('webcam') === 'true') {
-      window.addEventListener('deviceorientation', function () {
-        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-          DeviceOrientationEvent.requestPermission()
-            .then((response) => {
-              if (response === 'granted') {
-                window.addEventListener('deviceorientation', handleOrientation);
-              }
-            })
-            .catch(
-              (error) =>
-                console.log(
-                  'DeviceOrientationEvent.requestPermission error:',
-                  error
-                ) /* eslint-disable-line no-console */
-            );
-        } else {
-          window.addEventListener('deviceorientation', handleOrientation);
-        }
-        const handleOrientation = (event) => {
+    function openWebcamRequest() {
+      if (localStorage.getItem('webcam') === 'true') {
+        const handleOrientation = (e) => {
           receiver.postMessage(
             {
               message: 'orientation',
               orientation: {
-                alpha: event.alpha,
-                beta: event.beta,
-                gamma: event.gamma,
+                alpha: Math.round(e.alpha),
+                beta: Math.round(e.beta),
+                gamma: Math.round(e.gamma),
               },
             },
             '*'
           );
         };
-      });
+        window.addEventListener('deviceorientation', function async() {
+          if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission()
+              .then((response) => {
+                if (response === 'granted') {
+                  window.addEventListener(
+                    'deviceorientation',
+                    handleOrientation
+                  );
+                }
+              })
+              .catch(
+                (error) =>
+                  console.log(
+                    'DeviceOrientationEvent.requestPermission error:',
+                    error
+                  ) /* eslint-disable-line no-console */
+              );
+          } else {
+            window.addEventListener('deviceorientation', handleOrientation);
+          }
+        });
+      }
     }
 
     // checking lang
