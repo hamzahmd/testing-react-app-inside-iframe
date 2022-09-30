@@ -228,6 +228,7 @@ jQuery(document).ready(function ($) {
         openWebcamRequest();
       } else if (event.data && event.data.message === 'closeWebcam') {
         localStorage.setItem('webcam', 'false');
+        window.removeEventListener('deviceorientation', handleOrientation);
       }
       // else if (event.data && event.data.message === 'ipTokenExists') {
       //   if (localStorage.getItem('authToken')) {
