@@ -55,45 +55,42 @@ jQuery(document).ready(function ($) {
     );
 
     // when webcam is opened to detect the orientation
-    function openWebcamRequest() {
+
+    const handleOrientation = (e) => {
+      receiver.postMessage(
+        {
+          message: 'orientation',
+          orientation: {
+            alpha: Math.round(e.alpha),
+            beta: Math.round(e.beta),
+            gamma: Math.round(e.gamma),
+          },
+        },
+        '*'
+      );
+    };
+
+    const openWebcamRequest = async () => {
       if (localStorage.getItem('webcam') === 'true') {
-        const handleOrientation = (e) => {
-          receiver.postMessage(
-            {
-              message: 'orientation',
-              orientation: {
-                alpha: Math.round(e.alpha),
-                beta: Math.round(e.beta),
-                gamma: Math.round(e.gamma),
-              },
-            },
-            '*'
-          );
-        };
-        window.addEventListener('deviceorientation', function async() {
-          if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-            DeviceOrientationEvent.requestPermission()
-              .then((response) => {
-                if (response === 'granted') {
-                  window.addEventListener(
-                    'deviceorientation',
-                    handleOrientation
-                  );
-                }
-              })
-              .catch(
-                (error) =>
-                  console.log(
-                    'DeviceOrientationEvent.requestPermission error:',
-                    error
-                  ) /* eslint-disable-line no-console */
-              );
-          } else {
-            window.addEventListener('deviceorientation', handleOrientation);
-          }
-        });
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+          DeviceOrientationEvent.requestPermission()
+            .then((response) => {
+              if (response === 'granted') {
+                window.addEventListener('deviceorientation', handleOrientation);
+              }
+            })
+            .catch(
+              (error) =>
+                console.log(
+                  'DeviceOrientationEvent.requestPermission error:',
+                  error
+                ) /* eslint-disable-line no-console */
+            );
+        } else {
+          window.addEventListener('deviceorientation', handleOrientation);
+        }
       }
-    }
+    };
 
     // checking lang
     if (localStorage.getItem('lang')) {
@@ -228,6 +225,7 @@ jQuery(document).ready(function ($) {
         localStorage.setItem('lang', event.data.flag);
       } else if (event.data && event.data.message === 'openWebcam') {
         localStorage.setItem('webcam', 'true');
+        openWebcamRequest();
       } else if (event.data && event.data.message === 'closeWebcam') {
         localStorage.setItem('webcam', 'false');
       }
